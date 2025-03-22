@@ -1,10 +1,7 @@
-import os
+import gc
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
-
-file_path = r'spectrum\dataset\SN_25470\AAZn\S_20250211_085312_zn5_T244_0.spx' # Путь до бинарного файла
-save_path = r'spectrum\figs'                                                   # Путь для сохранения графика
 
 def parse_and_save_png_by_spx(file_path, save_path):
     """
@@ -75,15 +72,18 @@ def parse_and_save_png_by_spx(file_path, save_path):
     wavelengths_1 = np.interp(pixels_1, pixels_for_interp_1, wavelengths_for_interp_1)
     
     # Визуализация спектров
-    plt.figure(figsize=(12, 6))
-    plt.plot(wavelengths_0, sensor_data_0, linewidth=0.7, label='Датчик 0')
-    plt.plot(wavelengths_1, sensor_data_1, linewidth=0.7, label='Датчик 1')
+    fig = plt.figure(num=1, figsize=(12, 6), clear=True)
+    ax = fig.add_subplot()
 
-    plt.grid(True)      # Включаем сетку
-    plt.tight_layout()  # Улучшаем расположение элементов
+    ax.plot(wavelengths_0, sensor_data_0, linewidth=0.7, label='Датчик 0')
+    ax.plot(wavelengths_1, sensor_data_1, linewidth=0.7, label='Датчик 1')
+
+    ax.grid(True)      # Включаем сетку
+    fig.tight_layout()  # Улучшаем расположение элементов
     
     # Сохраняем изображение спектра
-    plt.savefig(save_path)
+    fig.savefig(save_path)
+    fig.clear()
+    plt.close(fig)
+    gc.collect()
 
-# Тестирование функции
-parse_and_save_png_by_spx(file_path, save_path)
