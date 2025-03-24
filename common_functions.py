@@ -18,8 +18,6 @@ def parse_all_files_info(dataset_directory):
     for device_path in os.listdir(dataset_directory):
         service_full_path = os.path.join(dataset_directory, device_path)
         for element_path in os.listdir(service_full_path):
-            if element_path == 'All':
-                continue
             element_full_path = os.path.join(service_full_path, element_path)
             for file_name in os.listdir(element_full_path):
                 filename_full_path = os.path.join(element_full_path, file_name)
