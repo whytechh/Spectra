@@ -72,14 +72,15 @@ def parse_and_save_png_by_spx(file_path, save_path):
     wavelengths_1 = np.interp(pixels_1, pixels_for_interp_1, wavelengths_for_interp_1)
     
     # Визуализация спектров
-    fig = plt.figure(num=1, figsize=(12, 6), clear=True)
+    fig = plt.figure(num=1, figsize=(2.24, 2.24), clear=True)
     ax = fig.add_subplot()
 
     ax.plot(wavelengths_0, sensor_data_0, linewidth=0.7, label='Датчик 0')
     ax.plot(wavelengths_1, sensor_data_1, linewidth=0.7, label='Датчик 1')
 
-    ax.grid(True)      # Включаем сетку
+    ax.grid(False)      # Включаем сетку
     fig.tight_layout()  # Улучшаем расположение элементов
+    plt.axis('off')
     
     # Сохраняем изображение спектра
     fig.savefig(save_path)
