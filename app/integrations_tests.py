@@ -1,3 +1,5 @@
+from os.path import realpath
+
 from fastapi.testclient import TestClient
 
 from main import app
@@ -24,7 +26,7 @@ def test_api_accept_invalid_form_data_request():
 
 
 def test_api_predict_parameters():
-    with open('../app/test_files/S_20250211_153211_ko_T223_0.png', 'rb') as f:
+    with open(realpath(f'{realpath(__file__)}/../test_files/S_20250211_153211_ko_T223_0.png'), 'rb') as f:
         binary = f.read()
     files = {"file": ("file", binary, "multipart/form-data")}
 

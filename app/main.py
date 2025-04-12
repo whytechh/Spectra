@@ -1,9 +1,11 @@
+from os.path import realpath
+
 from fastapi import Request, FastAPI, UploadFile
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
-templates = Jinja2Templates(directory='templates')
+templates = Jinja2Templates(directory=realpath(f'{realpath(__file__)}/../templates'))
 
 @app.get("/")
 async def root(request: Request):
@@ -16,4 +18,4 @@ async def calculate_parameters(file: UploadFile):
     }}
 
 
-app.mount('/static', StaticFiles(directory='./static'), 'static')
+app.mount('/static', StaticFiles(directory=realpath(f'{realpath(__file__)}/../static')), name='static')
