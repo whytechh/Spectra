@@ -16,4 +16,4 @@ async def calculate_parameters(file: UploadFile):
     }}
 
 
-app.mount('./static', StaticFiles(directory='static'), 'static')
+app.mount('/static', StaticFiles(directory='./static'), 'static')
