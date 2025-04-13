@@ -1,3 +1,5 @@
+import os
+import uvicorn
 from os.path import realpath
 
 from fastapi import Request, FastAPI, UploadFile
@@ -21,3 +23,6 @@ async def calculate_parameters(file: UploadFile):
 
 
 app.mount('/static', StaticFiles(directory=realpath(f'{realpath(__file__)}/../static')), name='static')
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8080")), log_config=None)
