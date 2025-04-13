@@ -1,6 +1,6 @@
 name: Python Package using Conda
 
-on: [push]
+on: [ push ]
 
 jobs:
   build-linux:
@@ -9,14 +9,18 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.9.20
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9.20'
-    - name: Create and install environment
-      run: |
-        pip install -r requirements.txt
-    - name: Test with pytest
-      run: |
-        pytest ./integrations_tests.py
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9.20
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9.20'
+      - name: Create and install environment
+        run: |
+          pip install -r requirements.txt
+      - name: Test with pytest
+        run: |
+          pytest ./app/integrations_tests.py
+      - name: 'Run PEP8'
+        uses: quentinguidee/pep8-action@v1
+        with:
+          arguments: '--max-line-length=120'
