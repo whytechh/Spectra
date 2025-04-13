@@ -20,3 +20,7 @@ jobs:
     - name: Test with pytest
       run: |
         pytest ./app/integrations_tests.py
+    - name: 'Run PEP8'
+      uses: quentinguidee/pep8-action@v1
+      with:
+        arguments: '--max-line-length=120'
