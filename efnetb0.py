@@ -1,6 +1,7 @@
 import torch.nn as nn
 from efficientnet_pytorch import EfficientNet
 
+
 def efnetb0():
     # Загрузка предобученной модели EfficientNet-B0
     model = EfficientNet.from_pretrained('efficientnet-b0')

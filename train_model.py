@@ -4,8 +4,9 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from efnetb0 import efnetb0
-from dataset import PreprocessedDataset 
+from dataset import PreprocessedDataset
 from sklearn.metrics import precision_score, recall_score, f1_score
+
 
 def main():
     train_csv = r'preprocessed_data\train_dataset.csv'
@@ -74,17 +75,18 @@ def main():
         epoch_accuracy = 100 * correct / total
 
         # Логирование результатов
-        print(f"Эпоха [{epoch+1}/{num_epochs}] - Лосс: {epoch_loss:.4f}, Точность: {epoch_accuracy:.2f}%")
-    
+        print(f"Эпоха [{epoch + 1}/{num_epochs}] - Лосс: {epoch_loss:.4f}, Точность: {epoch_accuracy:.2f}%")
+
     # Вычисление Precision, Recall и F1-score
     precision = precision_score(all_labels, all_preds, average='weighted')
     recall = recall_score(all_labels, all_preds, average='weighted')
     f1 = f1_score(all_labels, all_preds, average='weighted')
-    print(f"Итоговые метрики - Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}")   
+    print(f"Итоговые метрики - Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}")
 
     os.makedirs(os.path.dirname(weights_path), exist_ok=True)
     torch.save(model.state_dict(), weights_path)
     print(f'Сохранение весов модели: {weights_path}')
+
 
 # Добавляем условие для запуска в Windows
 if __name__ == '__main__':

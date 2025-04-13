@@ -6,6 +6,7 @@ from main import app
 
 client = TestClient(app)
 
+
 def test_read_api_is_runninng():
     response = client.get("/")
 
@@ -17,8 +18,9 @@ def test_api_send_422_on_invalid_request():
 
     assert response.status_code == 422
 
+
 def test_api_accept_invalid_form_data_request():
-    files = {"file": ("file", [0,1,2], "multipart/form-data")}
+    files = {"file": ("file", [0, 1, 2], "multipart/form-data")}
 
     response = client.post("/calculate-parameters", files=files)
 

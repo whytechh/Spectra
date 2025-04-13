@@ -6,37 +6,38 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Spectrum Device Matcher</h1>
-        <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <p>Drag & drop your image here or <span id="browseBtn">browse</span></p>
-                <input type="file" id="fileInput" accept="image/*" hidden>
-            </div>
+<div class="container">
+    <h1>Spectrum Device Matcher</h1>
+    <div class="upload-section">
+        <div class="upload-area" id="uploadArea">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Drag & drop your image here or <span id="browseBtn">browse</span></p>
+            <input type="file" id="fileInput" accept="image/*" hidden>
         </div>
-        
-        <div class="preview-section" id="previewSection">
-            <h2>Selected Image</h2>
-            <img id="imagePreview" alt="Preview">
-            <button id="analyzeBtn">Analyze Spectrum</button>
-        </div>
-        
-        <div class="result-section" id="resultSection">
-            <h2>Analysis Result</h2>
-            <div class="result-content">
-                <div class="loader" id="loader"></div>
-                <div id="resultData">
-                    <p>Matching Device: <span id="deviceName">-</span></p>
-                </div>
+    </div>
+
+    <div class="preview-section" id="previewSection">
+        <h2>Selected Image</h2>
+        <img id="imagePreview" alt="Preview">
+        <button id="analyzeBtn">Analyze Spectrum</button>
+    </div>
+
+    <div class="result-section" id="resultSection">
+        <h2>Analysis Result</h2>
+        <div class="result-content">
+            <div class="loader" id="loader"></div>
+            <div id="resultData">
+                <p>Matching Device: <span id="deviceName">-</span></p>
             </div>
         </div>
     </div>
-    
-    <script type="module" src="/static/script.js"></script>
+</div>
+
+<script type="module" src="/static/script.js"></script>
 </body>
 </html>
