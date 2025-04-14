@@ -1,4 +1,4 @@
-import json
+# import json
 import pandas as pd
 from torch.utils.data import Dataset
 from PIL import Image
@@ -7,17 +7,28 @@ from torchvision import transforms
 
 # Определяем наследующий класс от torch.utils.data.Dataset для подготовки датасета
 class PreprocessedDataset(Dataset):
-    def __init__(self, csv_file):
-        # На вход подается путь к csv файлу, выбираются необходимые колонки
-        self.data = pd.read_csv(csv_file, usecols=[3, 4], header=None, names=['image_path', 'label'],
-                                skiprows=1)  # Загружаем CSV-файл
+    def __init__(self, csv_file=None, df=None, label_map=None):
 
-        # print(self.data.head()) # Проверка выбранных колонок
+        # Если на вход подается csv-файл
+        if csv_file is not None:
+            self.data = pd.read_csv(csv_file, usecols=[3, 4], header=None, names=['image_path', 'label'], skiprows=1)
+            # print(self.data.head()) # Проверка выбранных колонок
 
+        # Если на вход подается датафрейм (для валидации)
+        elif df is not None:
+            self.data = df.copy()
+        
+        # Проверка на случай подачи csv_file и df одновременно
+        elif csv_file is not None and df is not None:
+            raise ValueError('Укажите либо csv_file, либо df')
+        
         # Создание словаря для маппинга меток
-        self.label_map = {label: idx for idx, label in enumerate(self.data['label'].unique())}
-
-        # Сохранение словаря
+        if label_map is not None:
+            self.label_map = label_map
+        else:
+            self.label_map = {label: idx for idx, label in enumerate(self.data['label'].unique())}
+        
+        # Сохранение словаря (сохранять только при первом запуске)
         # with open('labels.json', 'w') as f:
         # json.dump(self.label_map, f)
 
