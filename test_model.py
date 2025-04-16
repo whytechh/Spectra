@@ -6,9 +6,11 @@ from model_selector import get_model
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from collections import Counter
+import numpy as np
 
 # Пути и гиперпараметры
-weights_path = r'project_spectra\models\efnetb0_weights.pth'
+weights_path = r'project_spectra\models\efficientnetb0_weights.pth'
 test_csv = r'preprocessed_data\test_dataset.csv'
 
 batch_size = 32
@@ -62,18 +64,31 @@ accuracy = 100 * (torch.tensor(all_preds) == torch.tensor(all_labels)).sum().ite
 print(f'Точность: {accuracy:.2f}%')
 
 # Матрица неточностей
-cm = confusion_matrix(all_labels, all_preds)
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+cm = confusion_matrix(all_labels, all_preds, labels=list(range(453)))
+plt.figure(figsize=(14, 12))
+sns.heatmap(cm, cmap='Blues', cbar=True)
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
-plt.title('Confusion Matrix')
+plt.title('Confusion Matrix (All classes)')
 plt.tight_layout()
-plt.savefig('project_spectra\confusion_matrix.png')
+plt.savefig('project_spectra\\confusion_matrix_full.png')
+
+N = 20
+top_classes = [cls for cls, _ in Counter(all_labels).most_common(N)]
+cm_top = confusion_matrix(all_labels, all_preds, labels=top_classes)
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(cm_top, annot=True, fmt='d', cmap='Blues',
+            xticklabels=top_classes, yticklabels=top_classes)
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title(f'Confusion Matrix (Top {N} classes)')
+plt.tight_layout()
+plt.savefig(f'project_spectra\\confusion_matrix_top{N}.png')
 
 # Сохранение файла 
 results_df = pd.DataFrame({
     'actual': all_labels,
     'predicted': all_preds
 })
-results_df.to_csv('project_spectra\test_predictions.csv', index=False)
+results_df.to_csv('project_spectra\\test_predictions.csv', index=False)
