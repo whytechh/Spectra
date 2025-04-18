@@ -163,7 +163,7 @@ def main():
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig('project_spectra\training_plot.png')
+    plt.savefig('project_spectra\\training_plot.png')
     
     # Вычисление Precision, Recall и F1-score
     train_precision = precision_score(train_all_labels, train_all_preds, average='weighted')
