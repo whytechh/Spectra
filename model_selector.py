@@ -1,6 +1,7 @@
 import torch.nn as nn
 from efficientnet_pytorch import EfficientNet
 import torchvision.models as models
+from torchvision.models import VGG16_BN_Weights, VGG19_BN_Weights, ResNet34_Weights, ResNet50_Weights
 
 def get_model(name, num_classes=453, freeze=True):
     name = name.lower()
@@ -32,7 +33,7 @@ def get_model(name, num_classes=453, freeze=True):
                 param.requires_grad = True
 
     elif name == 'vgg16':
-        model = models.vgg16_bn(pretrained=True)
+        model = models.vgg16_bn(weights=VGG16_BN_Weights.DEFAULT)
         in_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(in_features, num_classes)
 
@@ -41,7 +42,7 @@ def get_model(name, num_classes=453, freeze=True):
                 param.requires_grad = False
 
     elif name == 'vgg19':
-        model = models.vgg19_bn(pretrained=True)
+        model = models.vgg19_bn(weights=VGG19_BN_Weights.DEFAULT)
         in_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(in_features, num_classes)
 
@@ -50,7 +51,7 @@ def get_model(name, num_classes=453, freeze=True):
                 param.requires_grad = False
 
     elif name == 'resnet34':
-        model = models.resnet34(pretrained=True)
+        model = models.resnet34(weights=ResNet34_Weights.DEFAULT)
         in_features = model.fc.in_features
         model.fc = nn.Linear(in_features, num_classes)
 
@@ -60,7 +61,7 @@ def get_model(name, num_classes=453, freeze=True):
                     param.requires_grad = False
 
     elif name == 'resnet50':
-        model = models.resnet50(pretrained=True)
+        model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
         in_features = model.fc.in_features
         model.fc = nn.Linear(in_features, num_classes)
 
