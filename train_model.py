@@ -5,19 +5,15 @@ import torch.nn as nn
 import pandas as pd
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-<<<<<<< HEAD
-from efnetb0 import efnetb0
-from dataset import PreprocessedDataset
-=======
 from model_selector import get_model
 from dataset import PreprocessedDataset 
->>>>>>> e4ed3fe (update, delete and upload files)
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 
 
 def main():
     train_csv = r'preprocessed_data\train_dataset.csv'
+    val_csv = r''
     weights_path = r'project_spectra\models\efnetb0_weights.pth'
 
     batch_size = 32
@@ -36,14 +32,8 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     print('Загрузка данных')
-    df = pd.read_csv(train_csv, usecols=[3, 4], header=None, names=['image_path', 'label'], skiprows=1)
-    train_df, val_df = train_test_split(df, test_size=0.2, random_state=42)
-
-    # Создаем общий label_map
-    label_map = {label: idx for idx, label in enumerate(sorted(df['label'].unique()))}
-    train_dataset = PreprocessedDataset(df=train_df, label_map=label_map)
-    val_dataset = PreprocessedDataset(df=val_df, label_map=label_map)
-    
+    train_dataset = PreprocessedDataset(csv_file=train_csv)
+    val_dataset = PreprocessedDataset(csv_file=val_csv)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
 
@@ -53,7 +43,12 @@ def main():
     train_accuracies = []
     val_accuracies = []
 
+    # Параметры для early stopping
     best_accuracy = 0.0
+    patience = 10
+    epochs_without_improvement = 0
+    early_stopping_enabled = True
+    min_delta = 0.1
     target_accuracy = 95.0
 
     print('Начало обучения')
@@ -96,20 +91,6 @@ def main():
         epoch_loss = running_loss / len(train_dataloader)
         epoch_accuracy = 100 * correct / total
 
-<<<<<<< HEAD
-        # Логирование результатов
-        print(f"Эпоха [{epoch + 1}/{num_epochs}] - Лосс: {epoch_loss:.4f}, Точность: {epoch_accuracy:.2f}%")
-
-    # Вычисление Precision, Recall и F1-score
-    precision = precision_score(all_labels, all_preds, average='weighted')
-    recall = recall_score(all_labels, all_preds, average='weighted')
-    f1 = f1_score(all_labels, all_preds, average='weighted')
-    print(f"Итоговые метрики - Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}")
-
-    os.makedirs(os.path.dirname(weights_path), exist_ok=True)
-    torch.save(model.state_dict(), weights_path)
-    print(f'Сохранение весов модели: {weights_path}')
-=======
         train_losses.append(epoch_loss)
         train_accuracies.append(epoch_accuracy)
 
@@ -140,16 +121,26 @@ def main():
             f'val_loss: {val_loss:.4f}, val_accuracy: {val_accuracy:.2f}%')
         
         # Сохраняем модель, если достигнута новая лучшая точность
-        if val_accuracy > best_accuracy:
+        if val_accuracy > best_accuracy + min_delta:
             best_accuracy = val_accuracy
+            epochs_without_improvement = 0
             torch.save(model.state_dict(), weights_path)
             print(f'Новая лучшая модель сохранена с точностью {best_accuracy:.2f}%')
+        else:
+            epochs_without_improvement += 1
+            print(f'Нет улучшения ({epochs_without_improvement}/{patience})')
 
         # Прерывание при достижении целевой точности
         if val_accuracy >= target_accuracy:
+            torch.save(model.state_dict(), weights_path)
             print(f'Достигнута целевая точность {target_accuracy}% на эпохе {epoch+1}, обучение остановлено')
             break
-
+        
+        # Early stopping
+        if early_stopping_enabled and epochs_without_improvement >= patience:
+            print(f'Ранняя остановка: модель не улучшалась {patience} эпох подряд')
+            break
+    
     # Графики
     plt.figure(figsize=(10, 4))
 
@@ -179,8 +170,6 @@ def main():
     train_recall = recall_score(train_all_labels, train_all_preds, average='weighted')
     train_f1 = f1_score(train_all_labels, train_all_preds, average='weighted')
     print(f'Итоговые метрики по обучению - Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1 Score: {train_f1:.4f}') 
->>>>>>> e4ed3fe (update, delete and upload files)
-
 
 # Добавляем условие для запуска в Windows
 if __name__ == '__main__':
