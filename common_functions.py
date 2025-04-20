@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from paths import preprocessed_data_directory, train_dataset_name, test_dataset_name
+from paths import preprocessed_data_directory, train_dataset_name, test_dataset_name, validation_dataset_name
 
 
 def parse_file_name(file_name):
@@ -42,9 +42,17 @@ def load_test_dataset():
     return pd.read_csv(os.path.join(preprocessed_data_directory, test_dataset_name), usecols=['name', 'full_path'])
 
 
+def load_validation_dataset():
+    return pd.read_csv(os.path.join(preprocessed_data_directory, validation_dataset_name), usecols=['name', 'full_path'])
+
+
 def save_as_train_dataset(df):
     df.to_csv(os.path.join(preprocessed_data_directory, train_dataset_name), index=False)
 
 
 def save_as_test_dataset(df):
     df.to_csv(os.path.join(preprocessed_data_directory, test_dataset_name), index=False)
+
+
+def save_as_validation_dataset(df):
+    df.to_csv(os.path.join(preprocessed_data_directory, validation_dataset_name), index=False)
