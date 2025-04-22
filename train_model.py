@@ -1,20 +1,18 @@
-import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-import pandas as pd
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from model_selector import get_model
 from dataset import PreprocessedDataset 
 from sklearn.metrics import precision_score, recall_score, f1_score
-from sklearn.model_selection import train_test_split
 
 
 def main():
     train_csv = r'preprocessed_data\train_dataset.csv'
-    val_csv = r''
+    val_csv = r'preprocessed_data\validation_dataset.csv'
     weights_path = r'project_spectra\models\efnetb0_weights.pth'
+    fig_path = r'project_spectra\training_plot.png'
 
     batch_size = 32
     num_epochs = 1000
@@ -28,14 +26,14 @@ def main():
     model = get_model(model_name, num_classes=453, freeze=True)
     model.to(device)
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
     print('Загрузка данных')
     train_dataset = PreprocessedDataset(csv_file=train_csv)
     val_dataset = PreprocessedDataset(csv_file=val_csv)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Списки для метрик на обучении и валидации
     train_losses = []
@@ -163,7 +161,7 @@ def main():
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig('project_spectra\\training_plot.png')
+    plt.savefig(fig_path)
     
     # Вычисление Precision, Recall и F1-score
     train_precision = precision_score(train_all_labels, train_all_preds, average='weighted')

@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from collections import Counter
-import numpy as np
 
 # Пути и гиперпараметры
-weights_path = r'project_spectra\models\efficientnetb0_weights.pth'
+weights_path = r'project_spectra\models\efnetb0_weights.pth'
 test_csv = r'preprocessed_data\test_dataset.csv'
+cm_path = r'project_spectra\confusion_matrix_full.png'
+cm_top20_path = r'project_spectra\confusion_matrix_top20.png'
+pred_csv = r'project_spectra\test_predictions.csv'
 
 batch_size = 32
 
@@ -22,6 +24,7 @@ print('Загрузка модели')
 model_name = 'efficientnet-b0' # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50 
 model = get_model(model_name, num_classes=453, freeze=True)
 model.to(device)
+model.load_state_dict(torch.load(weights_path, map_location=device))
 
 # Данные для тестирования
 print('Загрузка данных')
@@ -54,10 +57,7 @@ recall = recall_score(all_labels, all_preds, average='weighted')
 f1 = f1_score(all_labels, all_preds, average='weighted')
 
 # Вывод результатов
-print(f'Итоговые метрики на тестовом наборе:')
-print(f'Precision: {precision:.4f}')
-print(f'Recall: {recall:.4f}')
-print(f'F1 Score: {f1:.4f}')
+print(f'Итоговые метрики на тестовом наборе: Precision - {precision:.4f}, Recall - {recall:.4f}, F1 Score - {f1:.4f}')
 
 # Вычисление точности
 accuracy = 100 * (torch.tensor(all_preds) == torch.tensor(all_labels)).sum().item() / len(all_labels)
@@ -71,24 +71,20 @@ plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion Matrix (All classes)')
 plt.tight_layout()
-plt.savefig('project_spectra\\confusion_matrix_full.png')
+plt.savefig(cm_path)
 
 N = 20
 top_classes = [cls for cls, _ in Counter(all_labels).most_common(N)]
 cm_top = confusion_matrix(all_labels, all_preds, labels=top_classes)
 
 plt.figure(figsize=(10, 8))
-sns.heatmap(cm_top, annot=True, fmt='d', cmap='Blues',
-            xticklabels=top_classes, yticklabels=top_classes)
+sns.heatmap(cm_top, annot=True, fmt='d', cmap='Blues', xticklabels=top_classes, yticklabels=top_classes)
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title(f'Confusion Matrix (Top {N} classes)')
 plt.tight_layout()
-plt.savefig(f'project_spectra\\confusion_matrix_top{N}.png')
+plt.savefig(cm_top20_path)
 
 # Сохранение файла 
-results_df = pd.DataFrame({
-    'actual': all_labels,
-    'predicted': all_preds
-})
-results_df.to_csv('project_spectra\\test_predictions.csv', index=False)
+results_df = pd.DataFrame({'actual': all_labels, 'predicted': all_preds})
+results_df.to_csv(pred_csv, index=False)
