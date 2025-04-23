@@ -1,8 +1,6 @@
-# import json
 import pandas as pd
+import torch
 from torch.utils.data import Dataset
-from PIL import Image
-from torchvision import transforms
 
 
 # Определяем наследующий класс от torch.utils.data.Dataset для подготовки датасета
@@ -36,7 +34,6 @@ class PreprocessedDataset(Dataset):
         self.data['label'] = self.data['label'].map(self.label_map)
 
         # Определение трансформации
-        self.transform = transforms.ToTensor()
 
     def __len__(self):
         # Возвращаем количество строк в CSV
@@ -50,8 +47,7 @@ class PreprocessedDataset(Dataset):
         label = int(self.data.iloc[idx, 1])
 
         # Загружаем изображение
-        image = Image.open(image_path).convert('RGB')  # Конвертация в RGB на всякий случай
-        image = self.transform(image)  # Преобразуем в тензор
+        image = torch.load(image_path + '.pt')
 
         # Возвращаем изображение и параметры как тензор
         return image, label

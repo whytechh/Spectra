@@ -20,6 +20,8 @@ def parse_all_files_info(dataset_directory):
         for element_path in os.listdir(service_full_path):
             element_full_path = os.path.join(service_full_path, element_path)
             for file_name in os.listdir(element_full_path):
+                if not file_name.endswith('.png'):
+                    continue
                 filename_full_path = os.path.join(element_full_path, file_name)
                 name, temperature, sample_count = parse_file_name(file_name)
                 items.append({
