@@ -13,14 +13,14 @@ def parse_file_name(file_name):
     return name, temperature, sample_count
 
 
-def parse_all_files_info(dataset_directory):
+def parse_all_files_info(dataset_directory, file_extension=None):
     items = []
     for device_path in os.listdir(dataset_directory):
         service_full_path = os.path.join(dataset_directory, device_path)
         for element_path in os.listdir(service_full_path):
             element_full_path = os.path.join(service_full_path, element_path)
             for file_name in os.listdir(element_full_path):
-                if not file_name.endswith('.png'):
+                if file_extension is not None and not file_name.endswith(file_extension):
                     continue
                 filename_full_path = os.path.join(element_full_path, file_name)
                 name, temperature, sample_count = parse_file_name(file_name)

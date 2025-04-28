@@ -24,7 +24,7 @@ def convert_all_images_to_tensor(data):
 
 
 def start_processing():
-    file_infos = parse_all_files_info(result_dataset_directory)
+    file_infos = parse_all_files_info(result_dataset_directory, '.png')
 
     df = pd.DataFrame(file_infos)
     os.makedirs(preprocessed_data_directory, exist_ok=True)
