@@ -1,18 +1,21 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
+import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from torch.utils.data import DataLoader
 from model_selector import get_model
+from torch.utils.data import DataLoader
 from dataset import PreprocessedDataset 
+from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 def main():
     train_csv = r'preprocessed_data\train_dataset.csv'
     val_csv = r'preprocessed_data\validation_dataset.csv'
-    weights_path = r'project_spectra\models\efnetb0_weights.pth'
-    fig_path = r'project_spectra\training_plot.png'
+    weights_path = r'project_spectra\models\efnetb0_weights.pth'    # НЕ ЗАБЫТЬ СМЕНИТЬ НАЗВАНИЕ
+    fig_path = r'project_spectra\training_plot.png'                 # НЕ ЗАБЫТЬ СМЕНИТЬ НАЗВАНИЕ
 
     batch_size = 32
     num_epochs = 1000
@@ -32,7 +35,12 @@ def main():
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
 
-    criterion = nn.CrossEntropyLoss()
+    # Вычисление весов классов
+    train_df = pd.read_csv(train_csv, usecols=[3, 4], header=None, names=['image_path', 'label'], skiprows=1)
+    class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(train_df['label']), y=train_df['label'])
+    class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
+
+    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Списки для метрик на обучении и валидации
