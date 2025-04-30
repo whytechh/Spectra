@@ -71,5 +71,3 @@ if __name__ == '__main__':
 
     for csv_path in csv_files:
         normalize_csv(csv_path, name_map, output_dir)
-
-    print(name_map)
