@@ -12,10 +12,10 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 def main():
-    train_csv = r'preprocessed_data\train_dataset.csv'
-    val_csv = r'preprocessed_data\validation_dataset.csv'
+    train_csv = r'project\normalized_data\normalized_train_dataset.csv'
+    val_csv = r'project\normalized_data\normalized_validation_dataset.csv'
     weights_path = r'project_spectra\models\efnetb0_weights.pth'    # НЕ ЗАБЫТЬ СМЕНИТЬ НАЗВАНИЕ
-    fig_path = r'project_spectra\training_plot.png'                 # НЕ ЗАБЫТЬ СМЕНИТЬ НАЗВАНИЕ
+    fig_path = r'project_spectra\training_plot_efnetb0.png'                 # НЕ ЗАБЫТЬ СМЕНИТЬ НАЗВАНИЕ
 
     batch_size = 32
     num_epochs = 1000
@@ -36,8 +36,8 @@ def main():
     val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
 
     # Вычисление весов классов
-    train_df = pd.read_csv(train_csv, usecols=[3, 4], header=None, names=['image_path', 'label'], skiprows=1)
-    class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(train_df['label']), y=train_df['label'])
+    labels_array = train_dataset.data['label'].to_numpy()
+    class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(labels_array), y=labels_array)
     class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
 
     criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
