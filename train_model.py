@@ -26,7 +26,7 @@ def main():
     print(f'Используемое устройство: {device}')
 
     model_name = 'efficientnet-b0' # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50 
-    model = get_model(model_name, num_classes=453, freeze=True)
+    model = get_model(model_name, num_classes=391, freeze=True)
     model.to(device)
 
     print('Загрузка данных')
