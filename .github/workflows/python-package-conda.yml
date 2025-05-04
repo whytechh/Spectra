@@ -10,6 +10,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: robinraju/release-downloader@v1
+        with:
+          latest: true
+          fileName: 'model.pth'
+          out-file-path: 'app/'
       - name: Set up Python 3.9.20
         uses: actions/setup-python@v3
         with:
@@ -19,8 +24,20 @@ jobs:
           pip install -r requirements.txt
       - name: Test with pytest
         run: |
-          pytest ./app/integrations_tests.py
+          pytest ./tests/integrations_tests.py
       - name: 'Run PEP8'
         uses: quentinguidee/pep8-action@v1
         with:
           arguments: '--max-line-length=120'
+      - name: Yandex Cloud CR "Login" Action for GitHub Actions
+        uses: yc-actions/yc-cr-login@v0.1-alpha
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+      - name: 'Build, tag, and push image to Yandex Cloud Container Registry'
+        env:
+          CR_REGISTRY: crpu6b0he9vhd6gsbtje
+          CR_REPO: yc-cr-github-action
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --platform linux/amd64 -t cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPO:$IMAGE_TAG

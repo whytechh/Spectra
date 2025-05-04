@@ -1,10 +1,13 @@
-FROM python:3.9
+FROM pytorch/pytorch:latest
 
-COPY ./requirements.txt code/requirements.txt
+COPY /app/requirements.txt code/requirements.txt
 
-RUN pip install --no-cache-dir -r /code/requirements.txt
+RUN pip install -r code/requirements.txt
 
 COPY app/ code/app/
+COPY model_selector.py code/app/model_selector.py
+COPY labels.json code/app/labels.json
 
-CMD python code/app/main.py
+WORKDIR code/app
+CMD python main.py
 
