@@ -3,6 +3,7 @@ from efficientnet_pytorch import EfficientNet
 import torchvision.models as models
 from torchvision.models import VGG16_BN_Weights, VGG19_BN_Weights, ResNet34_Weights, ResNet50_Weights
 
+
 def get_model(name, num_classes=453, freeze=True, load_weights=True):
     name = name.lower()
 

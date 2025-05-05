@@ -23,11 +23,13 @@ for key, value in json_data.items():
 
 model_name = 'vgg16'
 model = get_model(model_name, num_classes=391, freeze=True, load_weights=False)
-model.load_state_dict(torch.load(realpath(f'{realpath(__file__)}/../model.pth'), weights_only=True, map_location=torch.device('cpu')))
+model.load_state_dict(
+    torch.load(realpath(f'{realpath(__file__)}/../model.pth'), weights_only=True, map_location=torch.device('cpu')))
 model.eval()
 
 app = FastAPI()
 templates = Jinja2Templates(directory=realpath(f'{realpath(__file__)}/../templates'))
+
 
 @app.get("/")
 async def root(request: Request):
