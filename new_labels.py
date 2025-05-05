@@ -3,6 +3,7 @@ import json
 from collections import defaultdict, deque
 import os
 
+
 # Загружаем json файл с синонимами и создаем связи между ними
 def load_synonyms(json_path):
     with open(json_path, 'r', encoding='utf-8') as f:
@@ -42,7 +43,7 @@ def name_mapping(connections):
     return name_map
 
 
-# Применяем изменения к csv-файлу и сохраняем 
+# Применяем изменения к csv-файлу и сохраняем
 def normalize_csv(csv_path, name_mapping, output_folder):
     df = pd.read_csv(csv_path)
     df['name'] = df['name'].map(lambda x: name_mapping.get(str(x).strip().lower(), x))

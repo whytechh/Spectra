@@ -45,7 +45,8 @@ def load_test_dataset():
 
 
 def load_validation_dataset():
-    return pd.read_csv(os.path.join(preprocessed_data_directory, validation_dataset_name), usecols=['name', 'full_path'])
+    return pd.read_csv(os.path.join(preprocessed_data_directory, validation_dataset_name),
+                       usecols=['name', 'full_path'])
 
 
 def save_as_train_dataset(df):

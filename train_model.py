@@ -1,11 +1,13 @@
+import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 from model_selector import get_model
+import time
 from torch.utils.data import DataLoader
-from dataset import PreprocessedDataset 
+from dataset import PreprocessedDataset
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import precision_score, recall_score, f1_score
 
@@ -23,16 +25,19 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.backends.cudnn.benchmark = True  # Ускорение сверток
     print(f'Используемое устройство: {device}')
+    print(torch.cuda.device_count())
+    print(torch.cuda.current_device())
+    print(torch.cuda.get_device_name(0))
 
-    model_name = 'efficientnet-b0' # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50 
+    model_name = 'vgg19'  # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50
     model = get_model(model_name, num_classes=391, freeze=True)
     model.to(device)
 
     print('Загрузка данных')
     train_dataset = PreprocessedDataset(csv_file=train_csv)
     val_dataset = PreprocessedDataset(csv_file=val_csv)
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=20, pin_memory=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=20, pin_memory=True)
 
     # Вычисление весов классов
     labels_array = train_dataset.data['label'].to_numpy()
@@ -60,6 +65,7 @@ def main():
     scaler = torch.amp.GradScaler()  # GradScaler без передачи device
     model.train()
     for epoch in range(num_epochs):
+        epoch_start = time.time()
         running_loss = 0.0
         correct = 0
         total = 0
@@ -67,6 +73,7 @@ def main():
         train_all_preds = []
 
         # Итерация по обучающим данным
+        train_start = time.time()
         for images, labels in train_dataloader:
             images, labels = images.to(device, non_blocking=True), labels.to(device, non_blocking=True)
 
@@ -92,6 +99,8 @@ def main():
             train_all_labels.extend(labels.cpu().numpy())
             train_all_preds.extend(predicted.cpu().numpy())
 
+        train_end = time.time()
+        print(f'Закончили обучение за [{train_end - train_start}]')
         # Вычисление средней потери и точности за эпоху
         epoch_loss = running_loss / len(train_dataloader)
         epoch_accuracy = 100 * correct / total
@@ -103,7 +112,7 @@ def main():
         val_running_loss = 0.0
         val_correct = 0
         val_total = 0
-
+        val_start = time.time()
         with torch.no_grad():
             for images, labels in val_dataloader:
                 images, labels = images.to(device), labels.to(device)
@@ -115,16 +124,19 @@ def main():
                 val_total += labels.size(0)
                 val_correct += (predicted == labels).sum().item()
 
+        val_end = time.time()
+        print(f'Закончили валидацию за [{val_end - val_start}]')
         val_loss = val_running_loss / len(val_dataloader)
         val_accuracy = 100 * val_correct / val_total
         val_losses.append(val_loss)
         val_accuracies.append(val_accuracy)
 
+        epoch_end = time.time()
         # Логирование для каждой эпохи
-        print(f'Эпоха [{epoch+1}/{num_epochs}] - '
-            f'train_loss: {epoch_loss:.4f}, train_accuracy: {epoch_accuracy:.2f}%, '
-            f'val_loss: {val_loss:.4f}, val_accuracy: {val_accuracy:.2f}%')
-        
+        print(f'Эпоха [{epoch + 1}/{num_epochs}] time [{epoch_end - epoch_start}]- '
+              f'train_loss: {epoch_loss:.4f}, train_accuracy: {epoch_accuracy:.2f}%, '
+              f'val_loss: {val_loss:.4f}, val_accuracy: {val_accuracy:.2f}%')
+
         # Сохраняем модель, если достигнута новая лучшая точность
         if val_accuracy > best_accuracy + min_delta:
             best_accuracy = val_accuracy
@@ -138,14 +150,14 @@ def main():
         # Прерывание при достижении целевой точности
         if val_accuracy >= target_accuracy:
             torch.save(model.state_dict(), weights_path)
-            print(f'Достигнута целевая точность {target_accuracy}% на эпохе {epoch+1}, обучение остановлено')
+            print(f'Достигнута целевая точность {target_accuracy}% на эпохе {epoch + 1}, обучение остановлено')
             break
-        
+
         # Early stopping
         if early_stopping_enabled and epochs_without_improvement >= patience:
             print(f'Ранняя остановка: модель не улучшалась {patience} эпох подряд')
             break
-    
+
     # Графики
     plt.figure(figsize=(10, 4))
 
@@ -169,12 +181,15 @@ def main():
 
     plt.tight_layout()
     plt.savefig(fig_path)
-    
+
     # Вычисление Precision, Recall и F1-score
     train_precision = precision_score(train_all_labels, train_all_preds, average='weighted')
     train_recall = recall_score(train_all_labels, train_all_preds, average='weighted')
     train_f1 = f1_score(train_all_labels, train_all_preds, average='weighted')
-    print(f'Итоговые метрики по обучению - Precision: {train_precision:.4f}, Recall: {train_recall:.4f}, F1 Score: {train_f1:.4f}') 
+    print(
+        f'Итоговые метрики по обучению - Precision: {train_precision:.4f}, '
+        f'Recall: {train_recall:.4f}, F1 Score: {train_f1:.4f}')
+
 
 # Добавляем условие для запуска в Windows
 if __name__ == '__main__':

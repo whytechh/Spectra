@@ -21,8 +21,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Инициализация модели
 print('Загрузка модели')
-model_name = 'efficientnet-b0' # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50 
-model = get_model(model_name, num_classes=453, freeze=True)
+model_name = 'vgg19'  # На выбор: efficientnet-b0, efficientnet-b3, vgg16, vgg19, resnet34, resnet50
+model = get_model(model_name, num_classes=391, freeze=True)
 model.to(device)
 model.load_state_dict(torch.load(weights_path, map_location=device))
 
@@ -85,6 +85,6 @@ plt.title(f'Confusion Matrix (Top {N} classes)')
 plt.tight_layout()
 plt.savefig(cm_top20_path)
 
-# Сохранение файла 
+# Сохранение файла
 results_df = pd.DataFrame({'actual': all_labels, 'predicted': all_preds})
 results_df.to_csv(pred_csv, index=False)

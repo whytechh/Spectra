@@ -3,7 +3,8 @@ from efficientnet_pytorch import EfficientNet
 import torchvision.models as models
 from torchvision.models import VGG16_BN_Weights, VGG19_BN_Weights, ResNet34_Weights, ResNet50_Weights
 
-def get_model(name, num_classes=453, freeze=True):
+
+def get_model(name, num_classes=453, freeze=True, load_weights=True):
     name = name.lower()
 
     if name == 'efficientnet-b0':
@@ -33,7 +34,7 @@ def get_model(name, num_classes=453, freeze=True):
                 param.requires_grad = True
 
     elif name == 'vgg16':
-        model = models.vgg16_bn(weights=VGG16_BN_Weights.DEFAULT)
+        model = models.vgg16_bn(weights=VGG16_BN_Weights.DEFAULT) if load_weights else models.vgg16_bn()
         in_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(in_features, num_classes)
 
