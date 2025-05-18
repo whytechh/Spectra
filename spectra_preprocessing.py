@@ -76,7 +76,7 @@ def parse_spx_to_split_tensor(file_path):
     sensor_data_0, sensor_data_1, wavelengths_0, wavelengths_1 = parse_spx(file_path)
     stacked = np.stack([sensor_data_0, sensor_data_1], axis=0)
     tensor = torch.tensor(stacked, dtype=torch.float32)
-    
+
     return tensor, wavelengths_0, wavelengths_1
 
 
@@ -88,8 +88,8 @@ def plot_tensor_with_mask(tensor):
     values = tensor[:, 1].numpy()
     plt.plot(wavelengths, values)
     plt.grid(False)
-    #plt.show()
-    
+    # plt.show()
+
 
 def plot_split_tensor(tensor, wavelengths_0, wavelengths_1):
     """
@@ -98,4 +98,4 @@ def plot_split_tensor(tensor, wavelengths_0, wavelengths_1):
     plt.plot(wavelengths_0, tensor[0].numpy())
     plt.plot(wavelengths_1, tensor[1].numpy())
     plt.grid(False)
-    #plt.show()
+    # plt.show()
