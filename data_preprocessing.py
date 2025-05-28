@@ -6,7 +6,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from common_functions import parse_all_files_info, save_as_train_dataset, save_as_test_dataset, load_train_dataset, \
     save_as_validation_dataset
-from paths import result_dataset_directory, preprocessed_data_directory
+from paths import result_dataset_directory, preprocessed_data_directory, result_spx_dataset_directory
 from torchvision import transforms
 
 
@@ -23,8 +23,8 @@ def convert_all_images_to_tensor(data):
     pool.map(convert_to_tensor, data['full_path'])
 
 
-def start_processing():
-    file_infos = parse_all_files_info(result_dataset_directory, '.png')
+def start_processing(result_directory, file_extension, save_tensor=False):
+    file_infos = parse_all_files_info(result_directory, file_extension)
 
     df = pd.DataFrame(file_infos)
     os.makedirs(preprocessed_data_directory, exist_ok=True)
@@ -49,10 +49,12 @@ def start_processing():
     save_as_test_dataset(test_df)
     save_as_validation_dataset(validation_df)
 
-    convert_all_images_to_tensor(train_df)
-    convert_all_images_to_tensor(test_df)
-    convert_all_images_to_tensor(validation_df)
+    if save_tensor:
+        convert_all_images_to_tensor(train_df)
+        convert_all_images_to_tensor(test_df)
+        convert_all_images_to_tensor(validation_df)
 
 
 if __name__ == '__main__':
-    start_processing()
+    # start_processing(result_dataset_directory, '.png')
+    start_processing(result_spx_dataset_directory, '.spx')
