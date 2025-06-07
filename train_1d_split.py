@@ -3,13 +3,13 @@ from torch.utils.data import DataLoader
 from torch import nn, optim
 from tqdm import tqdm
 from dataset_tensor import SpectraDatasetSplitChannels
-from project.model_1d_split import Simple1DCNN
-from sklearn.metrics import classification_report
+from model_1d_split import Simple1DCNN
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
 train_csv = r'D:\projects\normalized_data\normalized_train_dataset.csv'
 val_csv = r'D:\projects\normalized_data\normalized_validation_dataset.csv'
-weights_path = r'D:\projects\project_spectra\models\model1d_split.pth'
+weights_path = r'D:\projects\project_spectra\models\model_1d_split_5.pth'
 
 
 def train_one_epoch(model, dataloader, criterion, optimizer, device):
@@ -72,10 +72,14 @@ def compute_metrics(model, dataloader, device, label_map):
             y_true.extend(labels.cpu().numpy())
             y_pred.extend(predicted.cpu().numpy())
 
-    class_names = list(label_map.keys())
-    report = classification_report(y_true, y_pred, target_names=class_names, digits=4)
-    print('\nКлассификационный отчёт (по лучшей модели):')
-    print(report)
+    precision_macro = precision_score(y_true, y_pred, average='macro', zero_division=0)
+    recall_macro = recall_score(y_true, y_pred, average='macro', zero_division=0)
+    f1_macro = f1_score(y_true, y_pred, average='macro', zero_division=0)
+
+    print('\nМетрики качества:')
+    print(f'Precision: {precision_macro:.4f}')
+    print(f'Recall:    {recall_macro:.4f}')
+    print(f'F1-score:  {f1_macro:.4f}')
 
 
 def main():
@@ -83,9 +87,9 @@ def main():
     print(f'Используемое устройство: {device}')
 
     batch_size = 64
-    num_epochs = 15
+    num_epochs = 30
     learning_rate = 1e-5
-    patience = 3
+    
 
     train_dataset = SpectraDatasetSplitChannels(csv_file=train_csv)
     val_dataset = SpectraDatasetSplitChannels(csv_file=val_csv)
@@ -102,6 +106,8 @@ def main():
     best_val_acc = 0
     best_epoch = 0
     patience_counter = 0
+    min_delta = 0.001
+    patience = 3
 
     for epoch in range(1, num_epochs + 1):
         print(f'\nЭпоха {epoch}/{num_epochs}')
@@ -112,7 +118,7 @@ def main():
         val_loss, val_acc = validate(model, val_loader, criterion, device)
         print(f'Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f}')
 
-        if val_acc > best_val_acc:
+        if val_acc > best_val_acc + min_delta:
             best_val_acc = val_acc
             best_epoch = epoch
             patience_counter = 0 
